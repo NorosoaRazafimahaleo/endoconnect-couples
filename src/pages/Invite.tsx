@@ -58,19 +58,23 @@ export default function InvitePage() {
     navigate("/home");
   };
 
-  const handleSignup = async (e: React.FormEvent) => {
+  const handleJoin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!coupleId) return;
+    if (!coupleId || !displayName.trim()) return;
     setLoading(true);
 
+    // Auto-generate credentials behind the scenes
+    const randomId = crypto.randomUUID().slice(0, 8);
+    const autoEmail = `partner-${randomId}@endopartner.local`;
+    const autoPassword = crypto.randomUUID();
+
     const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: { emailRedirectTo: window.location.origin },
+      email: autoEmail,
+      password: autoPassword,
     });
 
     if (error) {
-      toast.error(error.message);
+      toast.error("Something went wrong. Please try again.");
       setLoading(false);
       return;
     }
@@ -83,12 +87,12 @@ export default function InvitePage() {
         .update({
           couple_id: coupleId,
           role: "partner" as any,
-          display_name: displayName.trim() || "Partner",
+          display_name: displayName.trim(),
           onboarding_complete: true,
         })
         .eq("id", data.user.id);
 
-      toast.success("Account created! You've joined your partner's space.");
+      toast.success("You've joined your partner's space!");
       navigate("/home");
     }
     setLoading(false);
@@ -152,41 +156,18 @@ export default function InvitePage() {
           </p>
         </div>
 
-        <form onSubmit={handleSignup} className="space-y-4">
+        <form onSubmit={handleJoin} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="displayName">Your display name</Label>
+            <Label htmlFor="displayName">What should we call you?</Label>
             <Input
               id="displayName"
-              placeholder="How your partner will see you"
+              placeholder="Your name"
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
               required
             />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              placeholder="At least 6 characters"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              minLength={6}
-            />
-          </div>
-          <Button type="submit" variant="warm" className="w-full" size="lg" disabled={loading}>
+          <Button type="submit" variant="warm" className="w-full" size="lg" disabled={loading || !displayName.trim()}>
             {loading ? "Joining…" : "Join as Partner"}
           </Button>
         </form>
