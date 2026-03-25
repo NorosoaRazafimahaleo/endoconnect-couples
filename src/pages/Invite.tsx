@@ -13,8 +13,6 @@ export default function InvitePage() {
   const { user, profile, refreshProfile } = useAuth();
   const navigate = useNavigate();
   const [coupleId, setCoupleId] = useState<string | null>(null);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [loading, setLoading] = useState(false);
   const [validating, setValidating] = useState(true);
