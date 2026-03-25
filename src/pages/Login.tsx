@@ -72,12 +72,17 @@ export default function LoginPage() {
           </Button>
         </form>
 
-        <p className="text-center text-sm text-muted-foreground">
-          Don't have an account?{" "}
-          <Link to="/signup" className="font-medium text-primary hover:underline">
-            Sign up
+        <div className="text-center space-y-1">
+          <Link to="/forgot-password" className="text-sm font-medium text-primary hover:underline">
+            Forgot your password?
           </Link>
-        </p>
+          <p className="text-sm text-muted-foreground">
+            Don't have an account?{" "}
+            <Link to="/signup" className="font-medium text-primary hover:underline">
+              Sign up
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );
