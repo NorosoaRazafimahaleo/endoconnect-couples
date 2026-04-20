@@ -159,6 +159,9 @@ export default function CommitmentPage() {
             Your commitments have been saved. You'll receive gentle reminders
             at 3 and 7 days to help you follow through.
           </p>
+          <Button variant="soft" size="lg" className="w-full" onClick={handleDownloadPdf} disabled={downloading}>
+            <Download className="h-4 w-4 mr-1" /> {downloading ? "Preparing…" : "Download session PDF"}
+          </Button>
           <Button variant="warm" size="lg" className="w-full" onClick={() => navigate("/home")}>
             <Home className="h-4 w-4 mr-1" /> Back to Dashboard
           </Button>
