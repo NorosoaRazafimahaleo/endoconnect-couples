@@ -4,12 +4,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { CheckCircle, Sparkles, PenLine, Home } from "lucide-react";
+import { CheckCircle, Sparkles, PenLine, Home, Download } from "lucide-react";
 import { toast } from "sonner";
+import { downloadSessionPdf } from "@/lib/sessionPdf";
 
 export default function CommitmentPage() {
   const { id } = useParams<{ id: string }>();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const navigate = useNavigate();
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [freeText, setFreeText] = useState("");
@@ -17,6 +18,36 @@ export default function CommitmentPage() {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [downloading, setDownloading] = useState(false);
+
+  const handleDownloadPdf = async () => {
+    if (!user || !id) return;
+    setDownloading(true);
+    try {
+      // Get partner name
+      let partnerName = "Your partner";
+      if (profile?.couple_id) {
+        const { data: partner } = await supabase
+          .from("profiles")
+          .select("display_name")
+          .eq("couple_id", profile.couple_id)
+          .neq("id", user.id)
+          .maybeSingle();
+        if (partner?.display_name) partnerName = partner.display_name;
+      }
+      await downloadSessionPdf({
+        sessionId: id,
+        userId: user.id,
+        myName: profile?.display_name || "You",
+        partnerName,
+      });
+      toast.success("Your session PDF is ready 💜");
+    } catch (e: any) {
+      toast.error(e?.message || "Could not generate PDF");
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   useEffect(() => {
     loadSuggestions();
@@ -128,6 +159,9 @@ export default function CommitmentPage() {
             Your commitments have been saved. You'll receive gentle reminders
             at 3 and 7 days to help you follow through.
           </p>
+          <Button variant="soft" size="lg" className="w-full" onClick={handleDownloadPdf} disabled={downloading}>
+            <Download className="h-4 w-4 mr-1" /> {downloading ? "Preparing…" : "Download session PDF"}
+          </Button>
           <Button variant="warm" size="lg" className="w-full" onClick={() => navigate("/home")}>
             <Home className="h-4 w-4 mr-1" /> Back to Dashboard
           </Button>

@@ -3,8 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Heart, Play, Lock, CheckCircle, LogOut, Users, Copy, Check } from "lucide-react";
+import { Heart, Play, Lock, CheckCircle, LogOut, Users, Copy, Check, Download } from "lucide-react";
 import { toast } from "sonner";
+import { downloadSessionPdf } from "@/lib/sessionPdf";
 
 interface SessionData {
   id: string;
@@ -170,34 +171,60 @@ export default function HomePage() {
             Your Sessions
           </h2>
           {sessions.map((session, i) => (
-            <button
+            <div
               key={session.id}
-              onClick={() => !isLocked(i) && startSession(session)}
-              disabled={isLocked(i)}
-              className={`w-full rounded-2xl border bg-card p-6 text-left transition-all active:scale-[0.98] ${
-                isLocked(i)
-                  ? "opacity-50 cursor-not-allowed"
-                  : "hover:endo-shadow cursor-pointer"
+              className={`rounded-2xl border bg-card p-6 transition-all ${
+                isLocked(i) ? "opacity-50" : "hover:endo-shadow"
               }`}
               style={{
                 animation: `fade-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) ${0.2 + i * 0.08}s forwards`,
                 opacity: 0,
               }}
             >
-              <div className="flex items-center gap-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-secondary">
-                  {getSessionIcon(session, i)}
+              <button
+                onClick={() => !isLocked(i) && startSession(session)}
+                disabled={isLocked(i)}
+                className={`w-full text-left ${isLocked(i) ? "cursor-not-allowed" : "cursor-pointer"}`}
+              >
+                <div className="flex items-center gap-4">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-secondary">
+                    {getSessionIcon(session, i)}
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-medium text-foreground">
+                      Session {session.session_number}: {sessionTitles[session.session_number - 1]}
+                    </h3>
+                    <p className="text-sm text-muted-foreground capitalize">
+                      {session.status === "completed" ? "Completed ✓" : session.status}
+                    </p>
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <h3 className="font-medium text-foreground">
-                    Session {session.session_number}: {sessionTitles[session.session_number - 1]}
-                  </h3>
-                  <p className="text-sm text-muted-foreground capitalize">
-                    {session.status === "completed" ? "Completed ✓" : session.status}
-                  </p>
-                </div>
-              </div>
-            </button>
+              </button>
+              {session.status === "completed" && (
+                <Button
+                  variant="soft"
+                  size="sm"
+                  className="mt-4 w-full"
+                  onClick={async (e) => {
+                    e.stopPropagation();
+                    if (!user || !profile) return;
+                    try {
+                      await downloadSessionPdf({
+                        sessionId: session.id,
+                        userId: user.id,
+                        myName: profile.display_name || "You",
+                        partnerName: partnerName || "Your partner",
+                      });
+                      toast.success("Session PDF downloaded 💜");
+                    } catch (err: any) {
+                      toast.error(err?.message || "Could not generate PDF");
+                    }
+                  }}
+                >
+                  <Download className="h-4 w-4 mr-1" /> Download answers (PDF)
+                </Button>
+              )}
+            </div>
           ))}
         </div>
 
