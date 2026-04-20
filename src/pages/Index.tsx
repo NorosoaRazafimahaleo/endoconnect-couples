@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Heart, Users, Shield, ArrowRight } from "lucide-react";
+import { Heart, Users, Shield, ArrowRight, UserPlus, MessageCircle, Sparkles } from "lucide-react";
 
 export default function Index() {
   const navigate = useNavigate();
@@ -22,8 +22,11 @@ export default function Index() {
               Understand endometriosis together
             </h1>
             <p className="text-lg text-muted-foreground leading-relaxed max-w-xl mx-auto">
-              EndoPartner helps couples navigate endometriosis through guided conversations,
-              shared understanding, and meaningful commitments.
+              EndoPartner is a free, private space for couples to learn about endometriosis,
+              talk openly, and grow closer through guided conversations.
+            </p>
+            <p className="text-sm font-medium text-primary">
+              100% free — forever. No subscriptions, no hidden costs.
             </p>
           </div>
 
@@ -34,6 +37,54 @@ export default function Index() {
             <Button variant="soft" size="lg" onClick={() => navigate("/login")}>
               Sign In
             </Button>
+          </div>
+        </div>
+
+        {/* How it works */}
+        <div
+          className="space-y-6 py-8"
+          style={{ animation: "fade-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards", opacity: 0 }}
+        >
+          <div className="text-center space-y-2">
+            <h2 className="text-2xl font-semibold text-foreground">How it works</h2>
+            <p className="text-muted-foreground">Three simple steps to start your journey together</p>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-3">
+            {[
+              {
+                step: "1",
+                icon: <UserPlus className="h-5 w-5 text-primary" />,
+                title: "Sign up & invite",
+                desc: "Create your free account and share a private invite link with your partner. They join with just a name — no account needed.",
+              },
+              {
+                step: "2",
+                icon: <MessageCircle className="h-5 w-5 text-primary" />,
+                title: "Answer privately",
+                desc: "Each of you answers thoughtful questions on your own. Your responses stay hidden until you're both ready to share.",
+              },
+              {
+                step: "3",
+                icon: <Sparkles className="h-5 w-5 text-primary" />,
+                title: "Reveal & commit",
+                desc: "Read each other's answers together and turn new understanding into small, meaningful commitments.",
+              },
+            ].map((item) => (
+              <div
+                key={item.step}
+                className="rounded-2xl border bg-card p-6 space-y-3 hover:endo-shadow transition-shadow relative"
+              >
+                <div className="absolute -top-3 -left-3 flex h-8 w-8 items-center justify-center rounded-full endo-gradient text-sm font-semibold text-primary-foreground">
+                  {item.step}
+                </div>
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-secondary">
+                  {item.icon}
+                </div>
+                <h3 className="font-semibold text-foreground">{item.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -60,7 +111,7 @@ export default function Index() {
               key={feature.title}
               className="rounded-2xl border bg-card p-6 space-y-3 hover:endo-shadow transition-shadow"
               style={{
-                animation: `fade-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) ${0.3 + i * 0.1}s forwards`,
+                animation: `fade-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) ${0.4 + i * 0.1}s forwards`,
                 opacity: 0,
               }}
             >
@@ -71,6 +122,20 @@ export default function Index() {
               <p className="text-sm text-muted-foreground leading-relaxed">{feature.desc}</p>
             </div>
           ))}
+        </div>
+
+        {/* CTA footer */}
+        <div
+          className="text-center py-8 space-y-4"
+          style={{ animation: "fade-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.6s forwards", opacity: 0 }}
+        >
+          <h2 className="text-xl font-semibold text-foreground">Ready to start?</h2>
+          <p className="text-sm text-muted-foreground max-w-md mx-auto">
+            It takes less than a minute to create your space and invite your partner.
+          </p>
+          <Button variant="warm" size="lg" onClick={() => navigate("/signup")}>
+            Create your free space <ArrowRight className="h-4 w-4 ml-1" />
+          </Button>
         </div>
       </div>
     </div>

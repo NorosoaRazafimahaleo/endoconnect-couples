@@ -201,16 +201,6 @@ export default function HomePage() {
           ))}
         </div>
 
-        {/* Upgrade placeholder */}
-        <div
-          className="rounded-2xl border-2 border-dashed border-border p-6 text-center space-y-2"
-          style={{ animation: "fade-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.5s forwards", opacity: 0 }}
-        >
-          <p className="text-sm font-medium text-muted-foreground">Premium Features</p>
-          <Button variant="soft" disabled>
-            Upgrade — Coming Soon
-          </Button>
-        </div>
       </main>
     </div>
   );
