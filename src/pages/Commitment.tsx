@@ -10,7 +10,7 @@ import { downloadSessionPdf } from "@/lib/sessionPdf";
 
 export default function CommitmentPage() {
   const { id } = useParams<{ id: string }>();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const navigate = useNavigate();
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [freeText, setFreeText] = useState("");
@@ -18,6 +18,36 @@ export default function CommitmentPage() {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [downloading, setDownloading] = useState(false);
+
+  const handleDownloadPdf = async () => {
+    if (!user || !id) return;
+    setDownloading(true);
+    try {
+      // Get partner name
+      let partnerName = "Your partner";
+      if (profile?.couple_id) {
+        const { data: partner } = await supabase
+          .from("profiles")
+          .select("display_name")
+          .eq("couple_id", profile.couple_id)
+          .neq("id", user.id)
+          .maybeSingle();
+        if (partner?.display_name) partnerName = partner.display_name;
+      }
+      await downloadSessionPdf({
+        sessionId: id,
+        userId: user.id,
+        myName: profile?.display_name || "You",
+        partnerName,
+      });
+      toast.success("Your session PDF is ready 💜");
+    } catch (e: any) {
+      toast.error(e?.message || "Could not generate PDF");
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   useEffect(() => {
     loadSuggestions();
