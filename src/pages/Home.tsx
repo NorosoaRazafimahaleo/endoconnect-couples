@@ -3,8 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Heart, Play, Lock, CheckCircle, LogOut, Users, Copy, Check } from "lucide-react";
+import { Heart, Play, Lock, CheckCircle, LogOut, Users, Copy, Check, Download } from "lucide-react";
 import { toast } from "sonner";
+import { downloadSessionPdf } from "@/lib/sessionPdf";
 
 interface SessionData {
   id: string;
