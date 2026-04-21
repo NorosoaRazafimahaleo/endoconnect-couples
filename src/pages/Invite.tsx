@@ -12,7 +12,6 @@ export default function InvitePage() {
   const { token } = useParams<{ token: string }>();
   const { user, profile, refreshProfile } = useAuth();
   const navigate = useNavigate();
-  const [coupleId, setCoupleId] = useState<string | null>(null);
   const [displayName, setDisplayName] = useState("");
   const [loading, setLoading] = useState(false);
   const [validating, setValidating] = useState(true);
@@ -21,14 +20,8 @@ export default function InvitePage() {
   useEffect(() => {
     const validate = async () => {
       if (!token) { setInvalid(true); setValidating(false); return; }
-      const { data } = await supabase
-        .from("couples")
-        .select("id")
-        .eq("invite_token", token)
-        .single();
-      if (data) {
-        setCoupleId(data.id);
-      } else {
+      const { data, error } = await supabase.rpc("validate_invite_token", { _token: token });
+      if (error || !data) {
         setInvalid(true);
       }
       setValidating(false);
@@ -36,23 +29,24 @@ export default function InvitePage() {
     validate();
   }, [token]);
 
-  // If already logged in and has profile, join couple
+  // If already logged in (and not in a couple), join via secure RPC
   useEffect(() => {
-    if (user && profile && coupleId && !profile.couple_id) {
-      joinCouple(user.id);
+    if (user && profile && token && !profile.couple_id && !validating && !invalid) {
+      joinCouple();
     }
-  }, [user, profile, coupleId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, profile, token, validating, invalid]);
 
-  const joinCouple = async (userId: string) => {
-    await supabase
-      .from("profiles")
-      .update({
-        couple_id: coupleId,
-        role: "partner" as any,
-        display_name: displayName.trim() || profile?.display_name || "Partner",
-        onboarding_complete: true,
-      })
-      .eq("id", userId);
+  const joinCouple = async () => {
+    if (!token) return;
+    const { error } = await supabase.rpc("join_couple_with_token", {
+      _token: token,
+      _display_name: displayName.trim() || profile?.display_name || "Partner",
+    });
+    if (error) {
+      toast.error("Could not join: " + error.message);
+      return;
+    }
     await refreshProfile();
     toast.success("You've joined your partner's space!");
     navigate("/home");
@@ -60,7 +54,7 @@ export default function InvitePage() {
 
   const handleJoin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!coupleId || !displayName.trim()) return;
+    if (!token || !displayName.trim()) return;
     setLoading(true);
 
     // Auto-generate credentials behind the scenes
@@ -80,18 +74,17 @@ export default function InvitePage() {
     }
 
     if (data.user) {
-      // Wait for profile trigger, then update
+      // Wait for profile trigger
       await new Promise((r) => setTimeout(r, 1000));
-      await supabase
-        .from("profiles")
-        .update({
-          couple_id: coupleId,
-          role: "partner" as any,
-          display_name: displayName.trim(),
-          onboarding_complete: true,
-        })
-        .eq("id", data.user.id);
-
+      const { error: rpcError } = await supabase.rpc("join_couple_with_token", {
+        _token: token,
+        _display_name: displayName.trim(),
+      });
+      if (rpcError) {
+        toast.error("Could not join: " + rpcError.message);
+        setLoading(false);
+        return;
+      }
       toast.success("You've joined your partner's space!");
       navigate("/home");
     }
