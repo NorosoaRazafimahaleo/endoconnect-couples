@@ -144,7 +144,7 @@ export default function Index() {
               {
                 icon: <EyeOff className="h-5 w-5 text-primary" />,
                 title: "Private by default",
-                desc: "Your answers are hidden from your partner until you both submit. No one else — not even our team — reads your reflections.",
+                desc: "Your answers are hidden from your partner until you both submit your responses.",
               },
               {
                 icon: <Shield className="h-5 w-5 text-primary" />,
