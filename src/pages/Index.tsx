@@ -68,7 +68,7 @@ export default function Index() {
                 step: "3",
                 icon: <Sparkles className="h-5 w-5 text-primary" />,
                 title: "Reveal & commit",
-                desc: "Read each other's answers together and turn new understanding into small, meaningful commitments.",
+                desc: "Read each other's answers together, turn new understanding into small, meaningful commitments — and export the whole session as a PDF to keep.",
               },
             ].map((item) => (
               <div
