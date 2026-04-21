@@ -430,6 +430,11 @@ export type Database = {
         }
         Returns: boolean
       }
+      join_couple_with_token: {
+        Args: { _display_name: string; _token: string }
+        Returns: string
+      }
+      validate_invite_token: { Args: { _token: string }; Returns: boolean }
     }
     Enums: {
       app_role: "woman_with_endo" | "partner" | "moderator"
