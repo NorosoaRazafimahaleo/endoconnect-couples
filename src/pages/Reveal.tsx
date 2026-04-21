@@ -177,32 +177,45 @@ export default function RevealPage() {
           >
             <Checkbox
               checked={shared}
-              disabled={shared || sharing}
+              disabled={sharing}
               onCheckedChange={async (checked) => {
-                if (!checked || shared || !profile?.couple_id) return;
+                if (!profile?.couple_id) return;
                 setSharing(true);
-                const { error } = await supabase.from("shared_answers").insert({
-                  answer_id: myAnswerId,
-                  couple_id: profile.couple_id,
-                });
-                setSharing(false);
-                if (error) {
-                  toast.error("Couldn't share. Please try again.");
-                  return;
+                if (checked) {
+                  const { error } = await supabase.from("shared_answers").insert({
+                    answer_id: myAnswerId,
+                    couple_id: profile.couple_id,
+                  });
+                  setSharing(false);
+                  if (error) {
+                    toast.error("Couldn't share. Please try again.");
+                    return;
+                  }
+                  setShared(true);
+                  toast.success("Shared anonymously with the community 💜");
+                } else {
+                  const { error } = await supabase
+                    .from("shared_answers")
+                    .delete()
+                    .eq("answer_id", myAnswerId);
+                  setSharing(false);
+                  if (error) {
+                    toast.error("Couldn't remove. Please try again.");
+                    return;
+                  }
+                  setShared(false);
+                  toast.success("Removed from the community feed");
                 }
-                setShared(true);
-                toast.success("Shared anonymously with the community 💜");
               }}
               className="mt-0.5"
             />
             <div className="space-y-1">
               <div className="flex items-center gap-1.5 text-sm font-medium text-foreground">
                 <Users className="h-4 w-4 text-primary" />
-                Share my answer with the community
+                Share my answer anonymously with the community
               </div>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                Anonymously help other couples — your name, email, and partner are never shown.
-                {shared && " ✓ Shared"}
+                Shared by default to help other couples. Untick to keep this answer private — your name, email, and partner are never shown either way.
               </p>
             </div>
           </label>
