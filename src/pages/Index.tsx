@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Heart, Users, Shield, ArrowRight, UserPlus, MessageCircle, Sparkles } from "lucide-react";
+import { Heart, Users, Shield, ArrowRight, UserPlus, MessageCircle, Sparkles, Lock, EyeOff, Database, Trash2 } from "lucide-react";
 
 export default function Index() {
   const navigate = useNavigate();
@@ -122,6 +122,57 @@ export default function Index() {
               <p className="text-sm text-muted-foreground leading-relaxed">{feature.desc}</p>
             </div>
           ))}
+        </div>
+
+        {/* Privacy */}
+        <div
+          className="py-12 space-y-6"
+          style={{ animation: "fade-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.5s forwards", opacity: 0 }}
+        >
+          <div className="text-center space-y-2">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-secondary">
+              <Lock className="h-6 w-6 text-primary" />
+            </div>
+            <h2 className="text-2xl font-semibold text-foreground">Your privacy, protected</h2>
+            <p className="text-muted-foreground max-w-xl mx-auto">
+              What you share here stays between you and your partner. Always.
+            </p>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            {[
+              {
+                icon: <EyeOff className="h-5 w-5 text-primary" />,
+                title: "Private by default",
+                desc: "Your answers are hidden from your partner until you both submit. No one else — not even our team — reads your reflections.",
+              },
+              {
+                icon: <Shield className="h-5 w-5 text-primary" />,
+                title: "Encrypted & secure",
+                desc: "Data is encrypted in transit and at rest. Authentication and storage are handled by industry-standard infrastructure.",
+              },
+              {
+                icon: <Database className="h-5 w-5 text-primary" />,
+                title: "No selling, no ads",
+                desc: "We never sell your data, share it with third parties, or use it for advertising. This app is free and will stay that way.",
+              },
+              {
+                icon: <Trash2 className="h-5 w-5 text-primary" />,
+                title: "You're in control",
+                desc: "You can delete your account and all associated data at any time from your settings. Anonymized community posts are opt-in only.",
+              },
+            ].map((item) => (
+              <div key={item.title} className="rounded-2xl border bg-card p-5 flex gap-4">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-secondary">
+                  {item.icon}
+                </div>
+                <div className="space-y-1">
+                  <h3 className="font-semibold text-foreground">{item.title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* CTA footer */}
