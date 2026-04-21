@@ -56,13 +56,23 @@ export default function RevealPage() {
       setPartnerAnswer(theirs?.answer_text || "Not answered yet");
       setMyAnswerId(mine?.id || "");
 
-      if (mine?.id) {
+      if (mine?.id && profile?.couple_id) {
         const { data: existingShare } = await supabase
           .from("shared_answers")
           .select("id")
           .eq("answer_id", mine.id)
           .maybeSingle();
-        setShared(!!existingShare);
+
+        if (existingShare) {
+          setShared(true);
+        } else {
+          // Default: share anonymously. User can opt out by unticking.
+          const { error: shareErr } = await supabase.from("shared_answers").insert({
+            answer_id: mine.id,
+            couple_id: profile.couple_id,
+          });
+          setShared(!shareErr);
+        }
       }
     }
 
