@@ -11,26 +11,55 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { session_id, user_id } = await req.json();
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+    const userClient = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_ANON_KEY")!,
+      { global: { headers: { Authorization: authHeader } } }
+    );
+    const { data: userData, error: userErr } = await userClient.auth.getUser();
+    if (userErr || !userData?.user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+    const userId = userData.user.id;
+
+    const { session_id } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+    );
 
-    // Get user role
+    // Verify the session belongs to the caller's couple
     const { data: profile } = await supabase
       .from("profiles")
-      .select("role")
-      .eq("id", user_id)
+      .select("role, couple_id")
+      .eq("id", userId)
       .single();
 
-    // Get answer themes from this session
+    if (!profile?.couple_id) {
+      return new Response(JSON.stringify({ error: "Forbidden" }), { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
+    const { data: sessionRow } = await supabase
+      .from("sessions")
+      .select("id, couple_id")
+      .eq("id", session_id)
+      .single();
+
+    if (!sessionRow || sessionRow.couple_id !== profile.couple_id) {
+      return new Response(JSON.stringify({ error: "Forbidden" }), { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
     const { data: answers } = await supabase
       .from("answers")
       .select("answer_text, questions!inner(session_id)")
-      .eq("user_id", user_id)
+      .eq("user_id", userId)
       .eq("questions.session_id", session_id);
 
     const themes = answers?.map((a: any) => a.answer_text.substring(0, 100)) || [];
@@ -38,7 +67,7 @@ serve(async (req) => {
     const suggestions = await getCommitmentSuggestions(
       profile?.role || "partner",
       themes,
-      60, // default alignment
+      60,
       LOVABLE_API_KEY
     );
 

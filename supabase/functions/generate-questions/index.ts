@@ -11,6 +11,21 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+    const userClient = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_ANON_KEY")!,
+      { global: { headers: { Authorization: authHeader } } }
+    );
+    const { data: userData, error: userErr } = await userClient.auth.getUser();
+    if (userErr || !userData?.user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+    const userId = userData.user.id;
+
     const { session_number, language, couple_id } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
@@ -18,6 +33,17 @@ serve(async (req) => {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Verify caller belongs to the requested couple
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("couple_id")
+      .eq("id", userId)
+      .single();
+
+    if (!profile?.couple_id || profile.couple_id !== couple_id) {
+      return new Response(JSON.stringify({ error: "Forbidden" }), { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
 
     // Get existing question IDs for this couple to avoid repeats
     const { data: existingQuestions } = await supabase
@@ -29,7 +55,6 @@ serve(async (req) => {
 
     const previousIds = existingQuestions?.map((q: any) => q.id) || [];
 
-    // Generate questions via AI
     const questions = await generateQuestions(
       session_number,
       language || "en",
@@ -38,7 +63,6 @@ serve(async (req) => {
       LOVABLE_API_KEY
     );
 
-    // Get the session for this couple + number
     const { data: session } = await supabase
       .from("sessions")
       .select("id")
@@ -48,7 +72,6 @@ serve(async (req) => {
 
     if (!session) throw new Error("Session not found");
 
-    // Insert questions
     const toInsert = questions.map((q: any) => ({
       session_id: session.id,
       question_text: q.question_text,
@@ -65,7 +88,7 @@ serve(async (req) => {
     });
   } catch (e) {
     console.error("generate-questions error:", e);
-    return new Response(JSON.stringify({ error: e.message }), {
+    return new Response(JSON.stringify({ error: "An internal error occurred. Please try again." }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
