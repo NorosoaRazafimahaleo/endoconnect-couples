@@ -379,7 +379,47 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      couple_members: {
+        Row: {
+          couple_id: string | null
+          created_at: string | null
+          display_name: string | null
+          id: string | null
+          language: string | null
+          onboarding_complete: boolean | null
+          role: Database["public"]["Enums"]["app_role"] | null
+          updated_at: string | null
+        }
+        Insert: {
+          couple_id?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          id?: string | null
+          language?: string | null
+          onboarding_complete?: boolean | null
+          role?: Database["public"]["Enums"]["app_role"] | null
+          updated_at?: string | null
+        }
+        Update: {
+          couple_id?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          id?: string | null
+          language?: string | null
+          onboarding_complete?: boolean | null
+          role?: Database["public"]["Enums"]["app_role"] | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_couple_id_fkey"
+            columns: ["couple_id"]
+            isOneToOne: false
+            referencedRelation: "couples"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       get_my_couple_id: { Args: never; Returns: string }
