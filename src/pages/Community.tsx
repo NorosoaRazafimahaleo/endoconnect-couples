@@ -28,21 +28,6 @@ export default function CommunityPage() {
   }, []);
 
   const loadCommunity = async () => {
-    // Check if user completed session 1
-    if (profile?.couple_id) {
-      const { data: sessions } = await supabase
-        .from("sessions")
-        .select("status")
-        .eq("couple_id", profile.couple_id)
-        .eq("session_number", 1);
-
-      const completed = sessions?.some((s) => s.status === "completed");
-      if (!completed) {
-        setLoading(false);
-        return;
-      }
-    }
-
     const { data } = await supabase
       .from("shared_answers")
       .select(`
@@ -104,9 +89,7 @@ export default function CommunityPage() {
           >
             <MessageCircle className="h-8 w-8 mx-auto text-muted-foreground" />
             <p className="text-muted-foreground">
-              {profile?.couple_id
-                ? "Complete Session 1 to unlock community perspectives"
-                : "No shared answers yet. Complete a session to contribute!"}
+              No shared perspectives yet. Be the first to share an answer from your session!
             </p>
           </div>
         ) : (

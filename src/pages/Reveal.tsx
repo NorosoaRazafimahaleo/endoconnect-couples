@@ -3,7 +3,9 @@ import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Heart } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ArrowRight, Heart, Users } from "lucide-react";
+import { toast } from "sonner";
 
 export default function RevealPage() {
   const { id, n } = useParams<{ id: string; n: string }>();
@@ -15,6 +17,9 @@ export default function RevealPage() {
   const [partnerName, setPartnerName] = useState<string>("Your partner");
   const [totalQuestions, setTotalQuestions] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [myAnswerId, setMyAnswerId] = useState<string>("");
+  const [shared, setShared] = useState(false);
+  const [sharing, setSharing] = useState(false);
 
   const questionIndex = parseInt(n || "1") - 1;
 
@@ -49,6 +54,16 @@ export default function RevealPage() {
       const theirs = answers.find((a) => a.user_id !== user.id);
       setMyAnswer(mine?.answer_text || "");
       setPartnerAnswer(theirs?.answer_text || "Not answered yet");
+      setMyAnswerId(mine?.id || "");
+
+      if (mine?.id) {
+        const { data: existingShare } = await supabase
+          .from("shared_answers")
+          .select("id")
+          .eq("answer_id", mine.id)
+          .maybeSingle();
+        setShared(!!existingShare);
+      }
     }
 
     // Get partner name
@@ -153,6 +168,45 @@ export default function RevealPage() {
           <Heart className="h-4 w-4 text-primary" />
           <span>Take a moment to discuss before moving on</span>
         </div>
+
+        {myAnswerId && (
+          <label
+            className={`flex items-start gap-3 rounded-xl border bg-secondary/30 p-4 cursor-pointer transition-all ${
+              shared ? "border-primary" : "border-border hover:bg-secondary/50"
+            } ${sharing ? "opacity-60 pointer-events-none" : ""}`}
+          >
+            <Checkbox
+              checked={shared}
+              disabled={shared || sharing}
+              onCheckedChange={async (checked) => {
+                if (!checked || shared || !profile?.couple_id) return;
+                setSharing(true);
+                const { error } = await supabase.from("shared_answers").insert({
+                  answer_id: myAnswerId,
+                  couple_id: profile.couple_id,
+                });
+                setSharing(false);
+                if (error) {
+                  toast.error("Couldn't share. Please try again.");
+                  return;
+                }
+                setShared(true);
+                toast.success("Shared anonymously with the community 💜");
+              }}
+              className="mt-0.5"
+            />
+            <div className="space-y-1">
+              <div className="flex items-center gap-1.5 text-sm font-medium text-foreground">
+                <Users className="h-4 w-4 text-primary" />
+                Share my answer with the community
+              </div>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Anonymously help other couples — your name, email, and partner are never shown.
+                {shared && " ✓ Shared"}
+              </p>
+            </div>
+          </label>
+        )}
 
         <Button variant="warm" className="w-full" size="lg" onClick={handleNext}>
           {questionIndex + 1 >= totalQuestions ? "View Commitments" : "Next Question"}

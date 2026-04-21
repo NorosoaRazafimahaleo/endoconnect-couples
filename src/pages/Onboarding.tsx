@@ -12,9 +12,6 @@ const LANGUAGES = [
   { code: "en", label: "English" },
   { code: "es", label: "Español" },
   { code: "fr", label: "Français" },
-  { code: "de", label: "Deutsch" },
-  { code: "pt", label: "Português" },
-  { code: "nl", label: "Nederlands" },
 ];
 
 export default function OnboardingPage() {
