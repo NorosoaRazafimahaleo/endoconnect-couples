@@ -422,6 +422,14 @@ export type Database = {
       }
     }
     Functions: {
+      create_couple_and_link: {
+        Args: { _display_name: string; _language: string }
+        Returns: {
+          couple_id: string
+          invite_token: string
+          session_id: string
+        }[]
+      }
       get_my_couple_id: { Args: never; Returns: string }
       has_role: {
         Args: {
