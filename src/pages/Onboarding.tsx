@@ -25,7 +25,12 @@ export default function OnboardingPage() {
   const [loading, setLoading] = useState(false);
 
   const handleNameAndLanguage = async () => {
-    if (!user || !displayName.trim()) return;
+    if (!displayName.trim()) return;
+    if (!user) {
+      toast.error("Please sign in again to continue");
+      navigate("/login");
+      return;
+    }
     setLoading(true);
 
     // Create couple and link user
