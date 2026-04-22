@@ -101,16 +101,6 @@ export default function Privacy() {
             </ul>
           </section>
 
-          <section className="rounded-2xl border bg-card p-6 space-y-3">
-            <div className="flex items-center gap-3">
-              <Mail className="h-5 w-5 text-primary" />
-              <h2 className="text-xl font-semibold text-foreground">Contact</h2>
-            </div>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              Questions or requests about your data? Reach out to <strong className="text-foreground">privacy@endopartner.app</strong>. We aim to respond within 7 days.
-            </p>
-          </section>
-
           <div className="text-center pt-4">
             <Button variant="warm" size="lg" onClick={() => navigate("/signup")}>
               Get started — it's free
