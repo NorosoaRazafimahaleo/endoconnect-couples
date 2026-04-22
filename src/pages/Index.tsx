@@ -187,6 +187,14 @@ export default function Index() {
           <Button variant="warm" size="lg" onClick={() => navigate("/signup")}>
             Create your free space <ArrowRight className="h-4 w-4 ml-1" />
           </Button>
+          <div className="pt-4">
+            <button
+              onClick={() => navigate("/privacy")}
+              className="text-sm text-muted-foreground hover:text-foreground underline underline-offset-4"
+            >
+              Read our full Data & Privacy policy
+            </button>
+          </div>
         </div>
       </div>
     </div>
