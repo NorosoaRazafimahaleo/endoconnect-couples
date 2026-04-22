@@ -72,6 +72,26 @@ serve(async (req) => {
 
     if (!session) throw new Error("Session not found");
 
+    // Delete previous questions for this session that have no answers yet,
+    // so each session start gets fresh AI-generated questions.
+    const { data: existingForSession } = await supabase
+      .from("questions")
+      .select("id")
+      .eq("session_id", session.id);
+
+    const existingIds = (existingForSession || []).map((q: any) => q.id);
+    if (existingIds.length > 0) {
+      const { data: answeredQs } = await supabase
+        .from("answers")
+        .select("question_id")
+        .in("question_id", existingIds);
+      const answeredSet = new Set((answeredQs || []).map((a: any) => a.question_id));
+      const deletableIds = existingIds.filter((qid: string) => !answeredSet.has(qid));
+      if (deletableIds.length > 0) {
+        await supabase.from("questions").delete().in("id", deletableIds);
+      }
+    }
+
     const toInsert = questions.map((q: any) => ({
       session_id: session.id,
       question_text: q.question_text,
