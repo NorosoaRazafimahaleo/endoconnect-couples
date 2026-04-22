@@ -21,6 +21,7 @@ import Admin from "./pages/Admin";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import Demo from "./pages/Demo";
+import Privacy from "./pages/Privacy";
 
 const queryClient = new QueryClient();
 
