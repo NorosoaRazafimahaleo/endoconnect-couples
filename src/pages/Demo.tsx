@@ -29,13 +29,14 @@ const FAKE_PARTNER_COMMITMENTS = [
   "I'll plan low-energy date nights for the hard weeks.",
 ];
 
-function Shell({ children, max = "max-w-lg", onExit }: { children: React.ReactNode; max?: string; onExit: () => void }) {
+function Shell({ children, max = "max-w-lg" }: { children: React.ReactNode; max?: string }) {
+  const navigate = useNavigate();
   return (
     <div className="flex min-h-screen items-center justify-center px-4 py-8 endo-gradient-soft">
       <div className={`w-full ${max} space-y-6 rounded-2xl bg-card p-8 endo-shadow`}>
         <div className="flex items-center justify-between">
           <span className="text-xs uppercase tracking-wider text-muted-foreground font-medium">Demo Mode</span>
-          <Button variant="ghost" size="sm" onClick={onExit}>Exit</Button>
+          <Button variant="ghost" size="sm" onClick={() => navigate("/")}>Exit</Button>
         </div>
         {children}
       </div>
