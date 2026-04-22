@@ -33,38 +33,20 @@ export default function OnboardingPage() {
     }
     setLoading(true);
 
-    // Create couple and link user
-    const { data: couple, error: coupleError } = await supabase
-      .from("couples")
-      .insert({ language })
-      .select()
-      .single();
+    const { data, error } = await supabase.rpc("create_couple_and_link", {
+      _display_name: displayName.trim(),
+      _language: language,
+    });
 
-    if (coupleError) {
-      toast.error("Failed to set up your space");
+    if (error || !data || data.length === 0) {
+      console.error("create_couple_and_link error:", error);
+      toast.error(error?.message || "Failed to set up your space");
       setLoading(false);
       return;
     }
 
-    // Update profile
-    await supabase
-      .from("profiles")
-      .update({
-        display_name: displayName.trim(),
-        language,
-        couple_id: couple.id,
-        role: "woman_with_endo" as any,
-      })
-      .eq("id", user.id);
-
-    // Create initial session 1
-    await supabase.from("sessions").insert({
-      couple_id: couple.id,
-      session_number: 1,
-      status: "pending" as any,
-    });
-
-    const link = `${window.location.origin}/invite/${couple.invite_token}`;
+    const { invite_token } = data[0];
+    const link = `${window.location.origin}/invite/${invite_token}`;
     setInviteLink(link);
     await refreshProfile();
     setLoading(false);
