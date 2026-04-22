@@ -40,28 +40,25 @@ export default function SessionStartPage() {
     if (!id) return;
     setGenerating(true);
 
-    // If no questions yet, generate them via AI
-    if (questions.length === 0) {
-      try {
-        const { data, error } = await supabase.functions.invoke("generate-questions", {
-          body: {
-            session_number: session?.session_number || 1,
-            language: profile?.language || "en",
-            couple_id: profile?.couple_id,
-          },
-        });
+    // Always regenerate fresh questions on each session start
+    try {
+      const { error } = await supabase.functions.invoke("generate-questions", {
+        body: {
+          session_number: session?.session_number || 1,
+          language: profile?.language || "en",
+          couple_id: profile?.couple_id,
+        },
+      });
 
-        if (error) throw error;
-        // Reload questions
-        const { data: q } = await supabase
-          .from("questions")
-          .select("*")
-          .eq("session_id", id)
-          .order("order_index");
-        setQuestions(q || []);
-      } catch (e) {
-        console.error("Question generation error:", e);
-      }
+      if (error) throw error;
+      const { data: q } = await supabase
+        .from("questions")
+        .select("*")
+        .eq("session_id", id)
+        .order("order_index");
+      setQuestions(q || []);
+    } catch (e) {
+      console.error("Question generation error:", e);
     }
 
     // Activate session
