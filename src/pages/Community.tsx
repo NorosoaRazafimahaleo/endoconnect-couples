@@ -64,7 +64,16 @@ export default function CommunityPage() {
             <Button variant="ghost" size="icon" onClick={() => navigate("/home")}>
               <ArrowLeft className="h-4 w-4" />
             </Button>
-            <span className="font-semibold text-foreground">Community</span>
+            <button
+              onClick={() => navigate("/home")}
+              className="flex items-center gap-2"
+              aria-label="Go to home"
+            >
+              <div className="flex h-8 w-8 items-center justify-center rounded-xl endo-gradient">
+                <Heart className="h-4 w-4 text-primary-foreground" />
+              </div>
+              <span className="font-semibold text-foreground">Community</span>
+            </button>
           </div>
         </div>
       </header>
@@ -75,10 +84,16 @@ export default function CommunityPage() {
           style={{ animation: "fade-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards" }}
         >
           <h1 className="text-2xl font-semibold text-foreground" style={{ lineHeight: "1.2" }}>
-            Shared Perspectives
+            Your shared perspectives
           </h1>
           <p className="text-muted-foreground">
-            Anonymous answers from couples on their endo journey
+            This is your private space. Only the answers <strong>you or your partner</strong> chose
+            to share from your sessions appear here — nothing is visible to other couples, and
+            nothing is shared automatically.
+          </p>
+          <p className="text-xs text-muted-foreground">
+            "Opt-in only" means an answer is added here only after you tap "Share" on it during
+            a session reveal. You can unshare it any time.
           </p>
         </div>
 
