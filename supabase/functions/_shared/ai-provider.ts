@@ -43,6 +43,13 @@ export async function generateQuestions(
   previousQuestionIds: string[],
   apiKey: string
 ): Promise<{ question_text: string; perspective: string; category: string; difficulty: number; order_index: number }[]> {
+  const langMap: Record<string, string> = {
+    en: "English",
+    es: "Spanish (Español)",
+    fr: "French (Français)",
+  };
+  const targetLanguage = langMap[language] || "English";
+
   const systemPrompt = `You are a compassionate couples counselor specializing in endometriosis education. Generate questions that help couples understand each other better around the topic of living with endometriosis. Questions should be warm, non-judgmental, and encourage honest reflection.
 
 Session ${sessionNumber} focus:
@@ -51,7 +58,8 @@ Session ${sessionNumber} focus:
 - Session 3: Future planning and relationship growth
 
 Return a JSON array of 5 questions with fields: question_text, perspective ("both"), category (string), difficulty (1-3), order_index (0-4).
-Language: ${language}. Order from least to most emotionally challenging.`;
+
+CRITICAL LANGUAGE RULE: Every question_text AND every category MUST be written entirely in ${targetLanguage}. Do not mix languages. Do not translate field names — only the values. Order from least to most emotionally challenging.`;
 
   const userPrompt = `Generate 5 questions for Session ${sessionNumber} for couple ${coupleId}. ${
     previousQuestionIds.length > 0
