@@ -55,7 +55,7 @@ export default function QuestionPage() {
         .select("*")
         .eq("question_id", q.id)
         .eq("user_id", user.id)
-        .single();
+       .maybeSingle(); //.single(); at first. Now Question page loads without answer
       if (myAnswer) {
         setExistingAnswer(myAnswer);
         setAnswer(myAnswer.answer_text);
