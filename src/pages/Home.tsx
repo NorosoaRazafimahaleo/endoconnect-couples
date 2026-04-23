@@ -162,12 +162,16 @@ export default function HomePage() {
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-10 border-b bg-card/80 backdrop-blur-sm">
         <div className="container flex items-center justify-between py-4">
-          <div className="flex items-center gap-3">
+          <button
+            onClick={() => navigate("/home")}
+            className="flex items-center gap-3"
+            aria-label="Go to home"
+          >
             <div className="flex h-9 w-9 items-center justify-center rounded-xl endo-gradient">
               <Heart className="h-4 w-4 text-primary-foreground" />
             </div>
             <span className="font-semibold text-foreground">EndoPartner</span>
-          </div>
+          </button>
           <div className="flex items-center gap-3">
             <Button variant="ghost" size="sm" onClick={() => navigate("/community")}>
               <Users className="mr-1 h-4 w-4" /> Community
