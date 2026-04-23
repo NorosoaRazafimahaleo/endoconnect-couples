@@ -118,9 +118,19 @@ export async function getCommitmentSuggestions(
   userRole: string,
   answerThemes: string[],
   alignmentScore: number,
-  apiKey: string
+  apiKey: string,
+  language: string = "en"
 ): Promise<string[]> {
-  const systemPrompt = `You are a compassionate couples counselor specializing in endometriosis. Suggest 3 specific, actionable commitments this person can make based on their session answers. Be warm and practical. Return a JSON array of exactly 3 strings.`;
+  const langMap: Record<string, string> = {
+    en: "English",
+    es: "Spanish (Español)",
+    fr: "French (Français)",
+  };
+  const targetLanguage = langMap[language] || "English";
+
+  const systemPrompt = `You are a compassionate couples counselor specializing in endometriosis. Suggest 3 specific, actionable commitments this person can make based on their session answers. Be warm and practical. Return a JSON array of exactly 3 strings.
+
+CRITICAL LANGUAGE RULE: Every suggestion string MUST be written entirely in ${targetLanguage}. Do not mix languages.`;
 
   const userPrompt = `Role: ${userRole}
 Key themes from answers: ${answerThemes.join(", ")}
