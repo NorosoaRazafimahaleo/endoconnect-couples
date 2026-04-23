@@ -182,10 +182,16 @@ export default function QuestionPage() {
           <Textarea
             placeholder="Share your thoughts honestly…"
             value={answer}
-            onChange={(e) => setAnswer(e.target.value)}
+            onChange={(e) => setAnswer(e.target.value.slice(0, 5000))}
             disabled={!!existingAnswer}
+            maxLength={5000}
             className="min-h-[120px] resize-none"
           />
+          {!existingAnswer && (
+            <p className="text-xs text-muted-foreground text-right">
+              {answer.length}/5000
+            </p>
+          )}
 
           {existingAnswer && !partnerAnswered && (
             <div className="flex items-center gap-2 text-sm text-muted-foreground rounded-lg bg-secondary p-3">
