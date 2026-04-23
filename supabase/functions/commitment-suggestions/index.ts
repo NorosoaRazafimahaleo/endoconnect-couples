@@ -38,7 +38,7 @@ serve(async (req) => {
     // Verify the session belongs to the caller's couple
     const { data: profile } = await supabase
       .from("profiles")
-      .select("role, couple_id")
+      .select("role, couple_id, language")
       .eq("id", userId)
       .single();
 
@@ -68,7 +68,8 @@ serve(async (req) => {
       profile?.role || "partner",
       themes,
       60,
-      LOVABLE_API_KEY
+      LOVABLE_API_KEY,
+      profile?.language || "en"
     );
 
     return new Response(JSON.stringify({ suggestions }), {
