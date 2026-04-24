@@ -87,6 +87,39 @@ export type Database = {
           },
         ]
       }
+      contact_messages: {
+        Row: {
+          category: string
+          created_at: string
+          email: string | null
+          id: string
+          message: string
+          name: string | null
+          subject: string
+          user_id: string | null
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          message: string
+          name?: string | null
+          subject: string
+          user_id?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          message?: string
+          name?: string | null
+          subject?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       couples: {
         Row: {
           anonymity_level: number
@@ -430,6 +463,7 @@ export type Database = {
           session_id: string
         }[]
       }
+      get_couple_id_for_token: { Args: { _token: string }; Returns: string }
       get_my_couple_id: { Args: never; Returns: string }
       has_role: {
         Args: {
