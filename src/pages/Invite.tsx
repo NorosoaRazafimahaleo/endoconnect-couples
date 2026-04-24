@@ -16,13 +16,16 @@ export default function InvitePage() {
   const [loading, setLoading] = useState(false);
   const [validating, setValidating] = useState(true);
   const [invalid, setInvalid] = useState(false);
+  const [inviteCoupleId, setInviteCoupleId] = useState<string | null>(null);
 
   useEffect(() => {
     const validate = async () => {
       if (!token) { setInvalid(true); setValidating(false); return; }
-      const { data, error } = await supabase.rpc("validate_invite_token", { _token: token });
+      const { data, error } = await supabase.rpc("get_couple_id_for_token", { _token: token });
       if (error || !data) {
         setInvalid(true);
+      } else {
+        setInviteCoupleId(data as string);
       }
       setValidating(false);
     };
@@ -116,12 +119,17 @@ export default function InvitePage() {
   }
 
   if (user && profile?.couple_id) {
+    const sameCouple = inviteCoupleId && profile.couple_id === inviteCoupleId;
     return (
       <div className="flex min-h-screen items-center justify-center px-4 endo-gradient-soft">
         <div className="w-full max-w-md space-y-4 rounded-2xl bg-card p-8 text-center endo-shadow">
-          <h1 className="text-xl font-semibold text-foreground">Already in a couple</h1>
+          <h1 className="text-xl font-semibold text-foreground">
+            {sameCouple ? "You're all set 💜" : "You're already in a couple"}
+          </h1>
           <p className="text-sm text-muted-foreground">
-            You're already connected with a partner.
+            {sameCouple
+              ? "You and your partner are already connected through this link."
+              : "Your account is linked to another partner. To use a new invite, sign out first."}
           </p>
           <Button variant="warm" onClick={() => navigate("/home")}>
             Go to Dashboard

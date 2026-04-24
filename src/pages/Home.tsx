@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Heart, Play, Lock, CheckCircle, LogOut, Users, Copy, Check, Download } from "lucide-react";
+import { Heart, Play, Lock, CheckCircle, LogOut, Users, Copy, Check, Download, MessageSquare } from "lucide-react";
 import { toast } from "sonner";
 import { downloadSessionPdf } from "@/lib/sessionPdf";
 
@@ -175,6 +175,9 @@ export default function HomePage() {
           <div className="flex items-center gap-3">
             <Button variant="ghost" size="sm" onClick={() => navigate("/community")}>
               <Users className="mr-1 h-4 w-4" /> Community
+            </Button>
+            <Button variant="ghost" size="sm" onClick={() => navigate("/contact")}>
+              <MessageSquare className="mr-1 h-4 w-4" /> Contact
             </Button>
             <Button variant="ghost" size="icon" onClick={signOut}>
               <LogOut className="h-4 w-4" />
