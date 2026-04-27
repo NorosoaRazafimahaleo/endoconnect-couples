@@ -166,7 +166,22 @@ export default function DemoPage() {
       doc.setTextColor(150, 150, 150);
       doc.text(`EndoPartner • Page ${p} of ${pageCount}`, pageWidth / 2, pageHeight - 20, { align: "center" });
     }
-    doc.save("endopartner-demo-session.pdf");
+    const blob = doc.output("blob");
+    const url = URL.createObjectURL(blob);
+    try {
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "endopartner-demo-session.pdf";
+      a.rel = "noopener";
+      a.style.display = "none";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    } catch {
+      try { window.open(url, "_blank", "noopener,noreferrer"); }
+      catch { window.location.href = url; }
+    }
+    setTimeout(() => URL.revokeObjectURL(url), 60_000);
   };
 
   // ---------- Render ----------
