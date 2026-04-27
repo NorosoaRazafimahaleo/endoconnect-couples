@@ -170,5 +170,7 @@ export async function downloadSessionPdf(params: {
     );
   }
 
-  doc.save(`endopartner-session-${session?.session_number ?? ""}.pdf`);
+  const filename = `endopartner-session-${session?.session_number ?? "1"}.pdf`;
+  const blob = doc.output("blob");
+  triggerBlobDownload(blob, filename);
 }
