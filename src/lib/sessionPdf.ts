@@ -1,6 +1,33 @@
 import jsPDF from "jspdf";
 import { supabase } from "@/integrations/supabase/client";
 
+// Mobile-safe download: avoids `doc.save()` which can trigger
+// "unsupported URL NSURLErrorDomain" inside iOS WebViews / in-app browsers.
+function triggerBlobDownload(blob: Blob, filename: string) {
+  const url = URL.createObjectURL(blob);
+  try {
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.rel = "noopener";
+    a.style.display = "none";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  } catch {
+    // Fallback for restrictive WebViews: open in a new tab so the user
+    // can save it manually instead of failing with an unsupported URL error.
+    try {
+      window.open(url, "_blank", "noopener,noreferrer");
+    } catch {
+      // Last resort: navigate current tab.
+      window.location.href = url;
+    }
+  }
+  // Revoke the URL after the browser has had time to start the download/open.
+  setTimeout(() => URL.revokeObjectURL(url), 60_000);
+}
+
 export async function downloadSessionPdf(params: {
   sessionId: string;
   userId: string;
