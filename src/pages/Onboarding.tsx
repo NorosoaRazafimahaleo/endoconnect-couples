@@ -160,7 +160,7 @@ export default function OnboardingPage() {
               </Button>
 
               <p className="text-center text-xs text-muted-foreground">
-                You can also share this link later from your settings
+                You can also copy this link later from your home screen
               </p>
             </div>
           </>
