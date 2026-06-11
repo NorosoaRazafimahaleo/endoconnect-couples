@@ -102,7 +102,7 @@ export default function OnboardingPage() {
               </div>
 
               <div className="space-y-2">
-                <Label>Preferred language</Label>
+                <Label>Language for your session questions</Label>
                 <div className="grid grid-cols-2 gap-2">
                   {LANGUAGES.map((l) => (
                     <button
