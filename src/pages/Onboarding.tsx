@@ -102,7 +102,7 @@ export default function OnboardingPage() {
               </div>
 
               <div className="space-y-2">
-                <Label>Preferred language</Label>
+                <Label>Language for your session questions</Label>
                 <div className="grid grid-cols-2 gap-2">
                   {LANGUAGES.map((l) => (
                     <button
@@ -150,7 +150,7 @@ export default function OnboardingPage() {
             <div className="space-y-4">
               <div className="flex items-center gap-2 rounded-lg border bg-muted p-3">
                 <p className="flex-1 truncate text-sm text-foreground">{inviteLink}</p>
-                <Button variant="soft" size="sm" onClick={copyLink}>
+                <Button variant="soft" size="sm" onClick={copyLink} aria-label="Copy invite link">
                   {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                 </Button>
               </div>
@@ -160,7 +160,7 @@ export default function OnboardingPage() {
               </Button>
 
               <p className="text-center text-xs text-muted-foreground">
-                You can also share this link later from your settings
+                You can also copy this link later from your home screen
               </p>
             </div>
           </>

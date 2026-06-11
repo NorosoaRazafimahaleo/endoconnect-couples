@@ -159,7 +159,7 @@ export default function Index() {
               {
                 icon: <Trash2 className="h-5 w-5 text-primary" />,
                 title: "You're in control",
-                desc: "You can delete your account and all associated data at any time from your settings. Anonymized community posts are opt-in only.",
+                desc: "You can request deletion of your account and all associated data at any time — we remove everything within 30 days. Anonymized community posts are opt-in only.",
               },
             ].map((item) => (
               <div key={item.title} className="rounded-2xl border bg-card p-5 flex gap-4">

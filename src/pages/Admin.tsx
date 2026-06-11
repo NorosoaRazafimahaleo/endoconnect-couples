@@ -81,7 +81,7 @@ export default function AdminPage() {
       <header className="border-b bg-card/80 backdrop-blur-sm sticky top-0 z-10">
         <div className="container flex items-center justify-between py-4">
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => navigate("/home")}>
+            <Button variant="ghost" size="icon" onClick={() => navigate("/home")} aria-label="Back to home">
               <ArrowLeft className="h-4 w-4" />
             </Button>
             <div className="flex items-center gap-2">

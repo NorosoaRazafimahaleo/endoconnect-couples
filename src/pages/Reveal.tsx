@@ -63,16 +63,7 @@ export default function RevealPage() {
           .eq("answer_id", mine.id)
           .maybeSingle();
 
-        if (existingShare) {
-          setShared(true);
-        } else {
-          // Default: share anonymously. User can opt out by unticking.
-          const { error: shareErr } = await supabase.from("shared_answers").insert({
-            answer_id: mine.id,
-            couple_id: profile.couple_id,
-          });
-          setShared(!shareErr);
-        }
+        setShared(!!existingShare);
       }
     }
 
