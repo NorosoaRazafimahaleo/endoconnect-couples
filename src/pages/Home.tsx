@@ -179,7 +179,7 @@ export default function HomePage() {
             <Button variant="ghost" size="sm" onClick={() => navigate("/contact")}>
               <MessageSquare className="mr-1 h-4 w-4" /> Contact
             </Button>
-            <Button variant="ghost" size="icon" onClick={signOut}>
+            <Button variant="ghost" size="icon" onClick={signOut} aria-label="Sign out">
               <LogOut className="h-4 w-4" />
             </Button>
           </div>
