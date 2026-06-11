@@ -231,7 +231,7 @@ export default function HomePage() {
               <div className="flex-1 truncate rounded-lg border bg-muted px-3 py-2 text-sm text-foreground">
                 {`${window.location.origin}/invite/${inviteToken}`}
               </div>
-              <Button variant="soft" size="sm" onClick={copyInvite}>
+              <Button variant="soft" size="sm" onClick={copyInvite} aria-label="Copy invite link">
                 {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
               </Button>
             </div>
