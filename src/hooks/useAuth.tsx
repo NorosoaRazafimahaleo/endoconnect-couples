@@ -17,9 +17,10 @@ interface AuthContextType {
   session: Session | null;
   profile: Profile | null;
   loading: boolean;
-  signUp: (email: string, password: string) => Promise<{ error: any }>;
-  signIn: (email: string, password: string) => Promise<{ error: any }>;
+  isAnonymous: boolean;
+  signInModerator: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
+  resetLocalAccount: () => Promise<void>;
   refreshProfile: () => Promise<void>;
 }
 
@@ -44,42 +45,53 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (user) await fetchProfile(user.id);
   };
 
+  const ensureAnonymousSession = async () => {
+    const { data, error } = await supabase.auth.signInAnonymously();
+    if (error) {
+      console.error("Anonymous sign-in failed:", error);
+      return null;
+    }
+    return data.session;
+  };
+
   useEffect(() => {
+    let mounted = true;
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        if (session?.user) {
-          setTimeout(() => fetchProfile(session.user.id), 0);
+      (_event, newSession) => {
+        if (!mounted) return;
+        setSession(newSession);
+        setUser(newSession?.user ?? null);
+        if (newSession?.user) {
+          setTimeout(() => fetchProfile(newSession.user.id), 0);
         } else {
           setProfile(null);
         }
-        setLoading(false);
       }
     );
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchProfile(session.user.id);
+    (async () => {
+      const { data: { session: existing } } = await supabase.auth.getSession();
+      let active = existing;
+      if (!active) {
+        active = await ensureAnonymousSession();
+      }
+      if (!mounted) return;
+      setSession(active);
+      setUser(active?.user ?? null);
+      if (active?.user) {
+        await fetchProfile(active.user.id);
       }
       setLoading(false);
-    });
+    })();
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
-  const signUp = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: { emailRedirectTo: window.location.origin },
-    });
-    return { error };
-  };
-
-  const signIn = async (email: string, password: string) => {
+  const signInModerator = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     return { error };
   };
@@ -91,8 +103,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setProfile(null);
   };
 
+  const resetLocalAccount = async () => {
+    // Sign out current (anonymous) session, then bootstrap a fresh one.
+    setLoading(true);
+    await supabase.auth.signOut();
+    setProfile(null);
+    const fresh = await ensureAnonymousSession();
+    setSession(fresh);
+    setUser(fresh?.user ?? null);
+    if (fresh?.user) {
+      await fetchProfile(fresh.user.id);
+    }
+    setLoading(false);
+  };
+
+  const isAnonymous = Boolean(user && (user as any).is_anonymous);
+
   return (
-    <AuthContext.Provider value={{ user, session, profile, loading, signUp, signIn, signOut, refreshProfile }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        session,
+        profile,
+        loading,
+        isAnonymous,
+        signInModerator,
+        signOut,
+        resetLocalAccount,
+        refreshProfile,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

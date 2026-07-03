@@ -1,28 +1,33 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Heart } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 
+/**
+ * Hidden moderator login. Not linked from the public UI.
+ * Signed-in moderators land on /admin.
+ */
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const { signIn } = useAuth();
+  const { signInModerator } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await signIn(email, password);
+    const { error } = await signInModerator(email, password);
     setLoading(false);
     if (error) {
       toast.error(error.message);
     } else {
-      navigate("/home");
+      toast.success("Signed in");
+      navigate("/admin");
     }
   };
 
@@ -34,13 +39,13 @@ export default function LoginPage() {
       >
         <div className="text-center space-y-2">
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl endo-gradient">
-            <Heart className="h-7 w-7 text-primary-foreground" />
+            <ShieldCheck className="h-7 w-7 text-primary-foreground" />
           </div>
           <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-            Welcome Back
+            Moderator sign in
           </h1>
           <p className="text-sm text-muted-foreground">
-            Continue your journey together
+            This page is for community moderators only.
           </p>
         </div>
 
@@ -71,18 +76,6 @@ export default function LoginPage() {
             {loading ? "Signing in…" : "Sign In"}
           </Button>
         </form>
-
-        <div className="text-center space-y-1">
-          <Link to="/forgot-password" className="text-sm font-medium text-primary hover:underline">
-            Forgot your password?
-          </Link>
-          <p className="text-sm text-muted-foreground">
-            Don't have an account?{" "}
-            <Link to="/signup" className="font-medium text-primary hover:underline">
-              Sign up
-            </Link>
-          </p>
-        </div>
       </div>
     </div>
   );
