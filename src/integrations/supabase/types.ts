@@ -465,6 +465,7 @@ export type Database = {
       }
       get_couple_id_for_token: { Args: { _token: string }; Returns: string }
       get_my_couple_id: { Args: never; Returns: string }
+      get_my_invite_token: { Args: never; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -476,6 +477,7 @@ export type Database = {
         Args: { _display_name: string; _token: string }
         Returns: string
       }
+      rotate_my_invite_token: { Args: never; Returns: string }
       validate_invite_token: { Args: { _token: string }; Returns: boolean }
     }
     Enums: {
