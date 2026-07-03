@@ -3,7 +3,18 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Heart, Play, Lock, CheckCircle, LogOut, Users, Copy, Check, Download, MessageSquare } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Heart, Play, Lock, CheckCircle, RotateCcw, Users, Copy, Check, Download, MessageSquare } from "lucide-react";
 import { toast } from "sonner";
 import { downloadSessionPdf } from "@/lib/sessionPdf";
 
@@ -14,7 +25,8 @@ interface SessionData {
 }
 
 export default function HomePage() {
-  const { user, profile, signOut, refreshProfile } = useAuth();
+  const { user, profile, resetLocalAccount, refreshProfile } = useAuth();
+
   const navigate = useNavigate();
   const [sessions, setSessions] = useState<SessionData[]>([]);
   const [partnerName, setPartnerName] = useState<string | null>(null);
