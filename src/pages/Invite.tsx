@@ -10,7 +10,7 @@ import { toast } from "sonner";
 
 export default function InvitePage() {
   const { token } = useParams<{ token: string }>();
-  const { user, profile, refreshProfile } = useAuth();
+  const { user, profile, loading: authLoading, refreshProfile, resetLocalAccount } = useAuth();
   const navigate = useNavigate();
   const [displayName, setDisplayName] = useState("");
   const [loading, setLoading] = useState(false);
@@ -20,7 +20,13 @@ export default function InvitePage() {
 
   useEffect(() => {
     const validate = async () => {
-      if (!token) { setInvalid(true); setValidating(false); return; }
+      if (!token) {
+        setInvalid(true);
+        setValidating(false);
+        return;
+      }
+      // Wait for the anonymous session to be ready before calling RPCs
+      if (authLoading || !user) return;
       const { data, error } = await supabase.rpc("get_couple_id_for_token", { _token: token });
       if (error || !data) {
         setInvalid(true);
@@ -30,24 +36,21 @@ export default function InvitePage() {
       setValidating(false);
     };
     validate();
-  }, [token]);
+  }, [token, authLoading, user]);
 
-  // If already logged in (and not in a couple), join via secure RPC
-  useEffect(() => {
-    if (user && profile && token && !profile.couple_id && !validating && !invalid) {
-      joinCouple();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, profile, token, validating, invalid]);
+  const handleJoin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!token || !displayName.trim() || !user) return;
+    setLoading(true);
 
-  const joinCouple = async () => {
-    if (!token) return;
     const { error } = await supabase.rpc("join_couple_with_token", {
       _token: token,
-      _display_name: displayName.trim() || profile?.display_name || "Partner",
+      _display_name: displayName.trim(),
     });
+
     if (error) {
       toast.error("Could not join: " + error.message);
+      setLoading(false);
       return;
     }
     await refreshProfile();
@@ -55,46 +58,7 @@ export default function InvitePage() {
     navigate("/home");
   };
 
-  const handleJoin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!token || !displayName.trim()) return;
-    setLoading(true);
-
-    // Auto-generate credentials behind the scenes
-    const randomId = crypto.randomUUID().slice(0, 8);
-    const autoEmail = `partner-${randomId}@endopartner.local`;
-    const autoPassword = crypto.randomUUID();
-
-    const { data, error } = await supabase.auth.signUp({
-      email: autoEmail,
-      password: autoPassword,
-    });
-
-    if (error) {
-      toast.error("Something went wrong. Please try again.");
-      setLoading(false);
-      return;
-    }
-
-    if (data.user) {
-      // Wait for profile trigger
-      await new Promise((r) => setTimeout(r, 1000));
-      const { error: rpcError } = await supabase.rpc("join_couple_with_token", {
-        _token: token,
-        _display_name: displayName.trim(),
-      });
-      if (rpcError) {
-        toast.error("Could not join: " + rpcError.message);
-        setLoading(false);
-        return;
-      }
-      toast.success("You've joined your partner's space!");
-      navigate("/home");
-    }
-    setLoading(false);
-  };
-
-  if (validating) {
+  if (authLoading || validating) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
@@ -110,30 +74,42 @@ export default function InvitePage() {
           <p className="text-sm text-muted-foreground">
             This invite link is not valid or has already been used.
           </p>
-          <Button variant="warm" onClick={() => navigate("/signup")}>
-            Create your own account
-          </Button>
+          <Button variant="warm" onClick={() => navigate("/")}>Back to home</Button>
         </div>
       </div>
     );
   }
 
-  if (user && profile?.couple_id) {
+  // Already in a couple on this device
+  if (profile?.couple_id) {
     const sameCouple = inviteCoupleId && profile.couple_id === inviteCoupleId;
     return (
       <div className="flex min-h-screen items-center justify-center px-4 endo-gradient-soft">
         <div className="w-full max-w-md space-y-4 rounded-2xl bg-card p-8 text-center endo-shadow">
           <h1 className="text-xl font-semibold text-foreground">
-            {sameCouple ? "You're all set 💜" : "You're already in a couple"}
+            {sameCouple ? "You're all set 💜" : "This device is already in a couple"}
           </h1>
           <p className="text-sm text-muted-foreground">
             {sameCouple
               ? "You and your partner are already connected through this link."
-              : "Your account is linked to another partner. To use a new invite, sign out first."}
+              : "This browser is already linked to another space. Reset it to join a new invite."}
           </p>
-          <Button variant="warm" onClick={() => navigate("/home")}>
-            Go to Dashboard
-          </Button>
+          <div className="flex flex-col gap-2">
+            <Button variant="warm" onClick={() => navigate("/home")}>
+              Go to Dashboard
+            </Button>
+            {!sameCouple && (
+              <Button
+                variant="soft"
+                onClick={async () => {
+                  await resetLocalAccount();
+                  toast.success("Local data reset. Joining as a new partner…");
+                }}
+              >
+                Reset this device and join
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     );
@@ -168,9 +144,18 @@ export default function InvitePage() {
               required
             />
           </div>
-          <Button type="submit" variant="warm" className="w-full" size="lg" disabled={loading || !displayName.trim()}>
+          <Button
+            type="submit"
+            variant="warm"
+            className="w-full"
+            size="lg"
+            disabled={loading || !displayName.trim()}
+          >
             {loading ? "Joining…" : "Join as Partner"}
           </Button>
+          <p className="text-center text-xs text-muted-foreground">
+            No account or password needed.
+          </p>
         </form>
       </div>
     </div>

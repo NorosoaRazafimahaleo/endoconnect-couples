@@ -3,7 +3,18 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Heart, Play, Lock, CheckCircle, LogOut, Users, Copy, Check, Download, MessageSquare } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Heart, Play, Lock, CheckCircle, RotateCcw, Users, Copy, Check, Download, MessageSquare } from "lucide-react";
 import { toast } from "sonner";
 import { downloadSessionPdf } from "@/lib/sessionPdf";
 
@@ -14,7 +25,8 @@ interface SessionData {
 }
 
 export default function HomePage() {
-  const { user, profile, signOut, refreshProfile } = useAuth();
+  const { user, profile, resetLocalAccount, refreshProfile } = useAuth();
+
   const navigate = useNavigate();
   const [sessions, setSessions] = useState<SessionData[]>([]);
   const [partnerName, setPartnerName] = useState<string | null>(null);
@@ -172,9 +184,36 @@ export default function HomePage() {
             <Button variant="ghost" size="sm" onClick={() => navigate("/contact")}>
               <MessageSquare className="mr-1 h-4 w-4" /> Contact
             </Button>
-            <Button variant="ghost" size="icon" onClick={signOut} aria-label="Sign out">
-              <LogOut className="h-4 w-4" />
-            </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="ghost" size="icon" aria-label="Reset my data">
+                  <RotateCcw className="h-4 w-4" />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Reset this device?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Since there's no signup, resetting will unlink this browser from your current
+                    space and any progress stored here. Your partner's device (if they've joined)
+                    is not affected. This can't be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={async () => {
+                      await resetLocalAccount();
+                      toast.success("Your device has been reset");
+                      navigate("/");
+                    }}
+                  >
+                    Reset
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+
           </div>
         </div>
       </header>

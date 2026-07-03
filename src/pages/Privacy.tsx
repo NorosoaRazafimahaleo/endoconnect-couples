@@ -102,9 +102,10 @@ export default function Privacy() {
           </section>
 
           <div className="text-center pt-4">
-            <Button variant="warm" size="lg" onClick={() => navigate("/signup")}>
+            <Button variant="warm" size="lg" onClick={() => navigate("/onboarding")}>
               Get started — it's free
             </Button>
+
           </div>
         </div>
       </div>
