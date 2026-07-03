@@ -179,6 +179,32 @@ export type Database = {
           },
         ]
       }
+      live_session_participants: {
+        Row: {
+          joined_at: string
+          live_session_id: string
+          user_id: string
+        }
+        Insert: {
+          joined_at?: string
+          live_session_id: string
+          user_id: string
+        }
+        Update: {
+          joined_at?: string
+          live_session_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "live_session_participants_live_session_id_fkey"
+            columns: ["live_session_id"]
+            isOneToOne: false
+            referencedRelation: "live_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       live_sessions: {
         Row: {
           created_at: string
@@ -471,6 +497,10 @@ export type Database = {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
+        Returns: boolean
+      }
+      is_live_session_participant: {
+        Args: { _session_id: string; _user_id: string }
         Returns: boolean
       }
       join_couple_with_token: {
