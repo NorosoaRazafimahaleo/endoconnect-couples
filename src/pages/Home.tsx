@@ -60,33 +60,26 @@ export default function HomePage() {
     setPartnerName(partner?.display_name || null);
 
     if (!partner) {
-      const { data: couple } = await supabase
-        .from("couples")
-        .select("invite_token")
-        .eq("id", coupleId)
-        .maybeSingle();
+      const { data: token } = await supabase.rpc("get_my_invite_token");
 
-      if (!couple?.invite_token) {
-        const newInviteToken = generateInviteToken();
-        const { data: updatedCouple, error: updateError } = await supabase
-          .from("couples")
-          .update({ invite_token: newInviteToken })
-          .eq("id", coupleId)
-          .select("invite_token")
-          .single();
+      if (!token) {
+        const { data: rotated, error: rotateError } = await supabase.rpc(
+          "rotate_my_invite_token"
+        );
 
-        if (updateError) {
+        if (rotateError) {
           toast.error("We couldn't restore your invite link yet");
           setInviteToken(null);
         } else {
-          setInviteToken(updatedCouple?.invite_token || newInviteToken);
+          setInviteToken(rotated ?? null);
         }
       } else {
-        setInviteToken(couple.invite_token);
+        setInviteToken(token);
       }
     } else {
       setInviteToken(null);
     }
+
 
     setLoading(false);
   };
