@@ -27,11 +27,11 @@ export default function OnboardingPage() {
   const handleNameAndLanguage = async () => {
     if (!displayName.trim()) return;
     if (!user) {
-      toast.error("Please sign in again to continue");
-      navigate("/login");
+      toast.error("We're still setting things up — try again in a moment");
       return;
     }
     setLoading(true);
+
 
     const { data, error } = await supabase.rpc("create_couple_and_link", {
       _display_name: displayName.trim(),

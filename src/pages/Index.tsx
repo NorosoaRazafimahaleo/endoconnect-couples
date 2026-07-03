@@ -31,13 +31,14 @@ export default function Index() {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-3">
-            <Button variant="warm" size="lg" onClick={() => navigate("/signup")}>
-              Get Started <ArrowRight className="h-4 w-4 ml-1" />
-            </Button>
-            <Button variant="soft" size="lg" onClick={() => navigate("/login")}>
-              Sign In
+            <Button variant="warm" size="lg" onClick={() => navigate("/onboarding")}>
+              Start now <ArrowRight className="h-4 w-4 ml-1" />
             </Button>
           </div>
+          <p className="text-xs text-muted-foreground max-w-md">
+            No account, no email, no password. Just open the app and go.
+          </p>
+
         </div>
 
         {/* How it works */}
@@ -55,8 +56,9 @@ export default function Index() {
               {
                 step: "1",
                 icon: <UserPlus className="h-5 w-5 text-primary" />,
-                title: "Sign up & invite",
-                desc: "Create your free account and share a private invite link with your partner. They join with just a name — no account needed.",
+                title: "Open & invite",
+                desc: "Pick a display name and share a private invite link with your partner. No accounts, no email — they join with just a name.",
+
               },
               {
                 step: "2",
@@ -184,9 +186,10 @@ export default function Index() {
           <p className="text-sm text-muted-foreground max-w-md mx-auto">
             It takes less than a minute to create your space and invite your partner.
           </p>
-          <Button variant="warm" size="lg" onClick={() => navigate("/signup")}>
+          <Button variant="warm" size="lg" onClick={() => navigate("/onboarding")}>
             Create your free space <ArrowRight className="h-4 w-4 ml-1" />
           </Button>
+
           <div className="pt-4">
             <button
               onClick={() => navigate("/privacy")}
