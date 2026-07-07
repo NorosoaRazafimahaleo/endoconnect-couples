@@ -214,10 +214,7 @@ serve(async (req) => {
   } catch (e: any) {
     console.error("generate-questions error:", e);
     return new Response(
-      JSON.stringify({
-        error: "An internal error occurred. Please try again.",
-        detail: e?.message ?? String(e),
-      }),
+      JSON.stringify({ error: "An internal error occurred. Please try again." }),
       {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
